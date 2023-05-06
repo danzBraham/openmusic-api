@@ -5,7 +5,8 @@
   "main": "./src/server.js",
   "scripts": {
     "start-dev": "nodemon ./src/server.js",
-    "lint": "eslint ./src"
+    "lint": "eslint ./src",
+    "migrate": "node-pg-migrate"
   },
   "author": "",
   "license": "ISC",

@@ -1,6 +1,6 @@
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
-const { InvariantError, NotFoundError } = require('../../exceptions/index');
+const { InvariantError, NotFoundError } = require('../../exceptions');
 
 class AlbumsService {
   constructor() {
@@ -51,7 +51,7 @@ class AlbumsService {
 
   async deleteAlbumById(id) {
     const query = {
-      text: 'DELETE FROM albums WHERE id = $3 RETURNING id',
+      text: 'DELETE FROM albums WHERE id = $1 RETURNING id',
       values: [id],
     };
     const result = await this._pool.query(query);

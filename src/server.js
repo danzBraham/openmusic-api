@@ -3,7 +3,8 @@ require('dotenv').config();
 const Hapi = require('@hapi/hapi');
 const albums = require('./api/albums/index');
 const AlbumsService = require('./services/postgres/AlbumsService');
-const { ClientError } = require('./exceptions/index');
+const AlbumsValidator = require('./validator/albums');
+const { ClientError } = require('./exceptions');
 
 const init = async () => {
   const albumsService = new AlbumsService();
@@ -35,6 +36,7 @@ const init = async () => {
         return h.continue;
       }
 
+      console.error(response);
       return h
         .response({
           status: 'fail',
@@ -48,7 +50,10 @@ const init = async () => {
 
   await server.register({
     plugin: albums,
-    options: { albumsService },
+    options: {
+      service: albumsService,
+      validator: AlbumsValidator,
+    },
   });
 
   await server.start();
