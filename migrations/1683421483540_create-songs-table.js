@@ -2,7 +2,7 @@
 
 exports.up = (pgm) => {
   pgm.createTable('songs', {
-    song_id: {
+    id: {
       type: 'VARCHAR(50)',
       primaryKey: true,
     },
@@ -35,7 +35,7 @@ exports.up = (pgm) => {
   pgm.addConstraint('songs', 'fk_songs_albums', {
     foreignKeys: {
       columns: 'album_id',
-      references: 'albums(album_id)',
+      references: 'albums(id)',
     },
   });
 };

@@ -11,6 +11,8 @@
   },
   "rules": {
     "no-console": "off",
-    "no-underscore-dangle": "off"
+    "no-underscore-dangle": "off",
+    "newline-per-chained-call": "off",
+    "object-curly-newline": "off"
   }
 }
