@@ -13,6 +13,15 @@
     "no-console": "off",
     "no-underscore-dangle": "off",
     "newline-per-chained-call": "off",
-    "object-curly-newline": "off"
+    "object-curly-newline": "off",
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        "devDependencies": false,
+        "optionalDependencies": false,
+        "peerDependencies": false
+      }
+    ],
+    "comma-dangle": "off"
   }
 }

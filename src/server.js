@@ -1,19 +1,36 @@
 require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
+const Jwt = require('@hapi/jwt');
 const { ClientError } = require('./exceptions');
 
-const albums = require('./api/albums/index');
+const users = require('./api/users');
+const UsersService = require('./services/UsersService');
+const UsersValidator = require('./validator/users');
+
+const authentications = require('./api/authentications');
+const AuthenticationsService = require('./services/AuthenticationsService');
+const AuthenticationsValidator = require('./validator/authentications');
+const tokenManager = require('./tokenize/TokenManager');
+
+const albums = require('./api/albums');
 const AlbumsService = require('./services/AlbumsService');
 const AlbumsValidator = require('./validator/albums');
 
-const songs = require('./api/songs/index');
+const songs = require('./api/songs');
 const SongsService = require('./services/SongsService');
 const SongsValidator = require('./validator/songs');
 
+const playlists = require('./api/playlists');
+const PlaylistsService = require('./services/PlaylistsService');
+const PlaylistsValidator = require('./validator/playlists');
+
 const init = async () => {
+  const usersService = new UsersService();
+  const authenticationsService = new AuthenticationsService();
   const albumsService = new AlbumsService();
   const songsService = new SongsService();
+  const playlistsService = new PlaylistsService();
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -54,7 +71,43 @@ const init = async () => {
     return h.continue;
   });
 
+  await server.register({
+    plugin: Jwt,
+  });
+
+  server.auth.strategy('openmusic_jwt', 'jwt', {
+    keys: process.env.ACCESS_TOKEN_KEY,
+    verify: {
+      aud: false,
+      iss: false,
+      sub: false,
+      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+    },
+    validate: (artifacts) => ({
+      isValid: true,
+      credentials: {
+        id: artifacts.decoded.payload.id,
+      },
+    }),
+  });
+
   await server.register([
+    {
+      plugin: users,
+      options: {
+        service: usersService,
+        validator: UsersValidator,
+      },
+    },
+    {
+      plugin: authentications,
+      options: {
+        authenticationsService,
+        usersService,
+        tokenManager,
+        validator: AuthenticationsValidator,
+      },
+    },
     {
       plugin: albums,
       options: {
@@ -67,6 +120,14 @@ const init = async () => {
       options: {
         service: songsService,
         validator: SongsValidator,
+      },
+    },
+    {
+      plugin: playlists,
+      options: {
+        playlistsService,
+        songsService,
+        validator: PlaylistsValidator,
       },
     },
   ]);
