@@ -90,7 +90,7 @@ class SongsService {
     }
   }
 
-  async verifySongId(id) {
+  async verifySong(id) {
     const query = {
       text: 'SELECT * FROM songs WHERE id = $1',
       values: [id],
@@ -98,7 +98,7 @@ class SongsService {
     const result = await this._pool.query(query);
 
     if (!result.rowCount) {
-      throw new NotFoundError('ID lagu tidak ditemukan');
+      throw new NotFoundError('Lagu tidak ditemukan');
     }
   }
 }
