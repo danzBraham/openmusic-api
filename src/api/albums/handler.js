@@ -23,21 +23,21 @@ class AlbumsHandler {
     };
   }
 
-  async putAlbumByIdHandler(request, h) {
+  async putAlbumByIdHandler(request) {
     this._validator.validateAlbumPayload(request.payload);
     await this._service.editAlbumById(request.params.id, request.payload);
-    return h.response({
+    return {
       status: 'success',
       message: 'Berhasil memperbarui album',
-    });
+    };
   }
 
-  async deleteAlbumByIdHandler(request, h) {
+  async deleteAlbumByIdHandler(request) {
     await this._service.deleteAlbumById(request.params.id);
-    return h.response({
+    return {
       status: 'success',
       message: 'Berhasil menghapus album',
-    });
+    };
   }
 }
 

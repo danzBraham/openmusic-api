@@ -13,13 +13,13 @@ const AuthenticationsService = require('./services/AuthenticationsService');
 const AuthenticationsValidator = require('./validator/authentications');
 const tokenManager = require('./tokenize/TokenManager');
 
-const albums = require('./api/albums');
-const AlbumsService = require('./services/AlbumsService');
-const AlbumsValidator = require('./validator/albums');
-
 const songs = require('./api/songs');
 const SongsService = require('./services/SongsService');
 const SongsValidator = require('./validator/songs');
+
+const albums = require('./api/albums');
+const AlbumsService = require('./services/AlbumsService');
+const AlbumsValidator = require('./validator/albums');
 
 const playlists = require('./api/playlists');
 const PlaylistsService = require('./services/PlaylistsService');
@@ -32,8 +32,8 @@ const CollaborationsValidator = require('./validator/collaborations');
 const init = async () => {
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
-  const albumsService = new AlbumsService();
   const songsService = new SongsService();
+  const albumsService = new AlbumsService(songsService);
   const collaborationsService = new CollaborationsService();
   const playlistsService = new PlaylistsService(collaborationsService);
 
@@ -114,17 +114,17 @@ const init = async () => {
       },
     },
     {
-      plugin: albums,
-      options: {
-        service: albumsService,
-        validator: AlbumsValidator,
-      },
-    },
-    {
       plugin: songs,
       options: {
         service: songsService,
         validator: SongsValidator,
+      },
+    },
+    {
+      plugin: albums,
+      options: {
+        service: albumsService,
+        validator: AlbumsValidator,
       },
     },
     {
