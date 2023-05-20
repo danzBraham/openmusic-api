@@ -1,5 +1,5 @@
 node_modules
 .env
 openmusic-api-test.postman_environment.json
-openmusic-api-v1-test.postman_collection.json
+openmusic-api-v3-test.postman_collection.json
 .prettierignore
