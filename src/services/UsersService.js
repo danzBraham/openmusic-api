@@ -8,13 +8,14 @@ class UsersService {
     this._pool = new Pool();
   }
 
-  async verifyUser(id) {
+  async verifyUser(userId) {
     const query = {
       text: 'SELECT * FROM users WHERE id = $1',
-      values: [id],
+      values: [userId],
     };
-    const result = await this._pool.query(query);
-    if (!result.rowCount) {
+    const { rowCount } = await this._pool.query(query);
+
+    if (!rowCount) {
       throw new NotFoundError('User tidak ditemukan');
     }
   }
@@ -24,8 +25,9 @@ class UsersService {
       text: 'SELECT * FROM users WHERE username = $1',
       values: [username],
     };
-    const result = await this._pool.query(query);
-    if (result.rowCount > 0) {
+    const { rowCount } = await this._pool.query(query);
+
+    if (rowCount > 0) {
       throw new InvariantError('Gagal menambahkan user. Username sudah digunakan');
     }
   }

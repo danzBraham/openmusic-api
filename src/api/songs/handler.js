@@ -7,10 +7,13 @@ class SongsHandler {
   async postSongHandler(request, h) {
     this._validator.validateSongPayload(request.payload);
     const songId = await this._service.addSong(request.payload);
+
     return h
       .response({
         status: 'success',
-        data: { songId },
+        data: {
+          songId,
+        },
       })
       .code(201);
   }
@@ -19,7 +22,9 @@ class SongsHandler {
     const songs = await this._service.getSongs(request.query);
     return {
       status: 'success',
-      data: { songs },
+      data: {
+        songs,
+      },
     };
   }
 
@@ -27,13 +32,16 @@ class SongsHandler {
     const song = await this._service.getSongById(request.params.id);
     return {
       status: 'success',
-      data: { song },
+      data: {
+        song,
+      },
     };
   }
 
   async putSongByIdHandler(request) {
     this._validator.validateSongPayload(request.payload);
     await this._service.editSongById(request.params.id, request.payload);
+
     return {
       status: 'success',
       message: 'Berhasil memperbarui lagu',
