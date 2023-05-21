@@ -3,3 +3,4 @@ node_modules
 openmusic-api-test.postman_environment.json
 openmusic-api-v3-test.postman_collection.json
 .prettierignore
+src/api/uploads/file
