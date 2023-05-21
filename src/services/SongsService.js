@@ -13,13 +13,13 @@ class SongsService {
       text: 'INSERT INTO songs VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id',
       values: [songId, title, year, performer, genre, duration, albumId],
     };
-    const result = await this._pool.query(query);
+    const { rowCount, rows } = await this._pool.query(query);
 
-    if (!result.rowCount) {
+    if (!rowCount) {
       throw new InvariantError('Gagal menambah lagu');
     }
 
-    return result.rows[0].id;
+    return rows[0].id;
   }
 
   async getSongs({ title, performer }) {
@@ -40,8 +40,8 @@ class SongsService {
       query.values = [`%${title}%`, `%${performer}%`];
     }
 
-    const result = await this._pool.query(query);
-    return result.rows;
+    const { rows } = await this._pool.query(query);
+    return rows;
   }
 
   async getSongsByAlbumId(albumId) {
@@ -49,9 +49,9 @@ class SongsService {
       text: 'SELECT id, title, performer FROM songs WHERE album_id = $1',
       values: [albumId],
     };
-    const result = await this._pool.query(querySongsByAlbumId);
+    const { rows } = await this._pool.query(querySongsByAlbumId);
 
-    return result.rows;
+    return rows;
   }
 
   async getSongById(songId) {
@@ -59,13 +59,13 @@ class SongsService {
       text: 'SELECT * FROM songs WHERE id = $1',
       values: [songId],
     };
-    const result = await this._pool.query(query);
+    const { rowCount, rows } = await this._pool.query(query);
 
-    if (!result.rowCount) {
+    if (!rowCount) {
       throw new NotFoundError('Lagu tidak ditemukan');
     }
 
-    return result.rows[0];
+    return rows[0];
   }
 
   async editSongById(songId, { title, year, performer, genre, duration, albumId }) {

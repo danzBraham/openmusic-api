@@ -14,13 +14,13 @@ class AlbumsService {
       text: 'INSERT INTO albums VALUES($1, $2, $3) RETURNING id',
       values: [albumId, name, year],
     };
-    const result = await this._pool.query(query);
+    const { rowCount, rows } = await this._pool.query(query);
 
-    if (!result.rowCount) {
+    if (!rowCount) {
       throw new InvariantError('Gagal menambah album');
     }
 
-    return result.rows[0].id;
+    return rows[0].id;
   }
 
   async getAlbumById(albumId) {
@@ -28,15 +28,15 @@ class AlbumsService {
       text: 'SELECT * FROM albums WHERE id = $1',
       values: [albumId],
     };
-    const resultAlbum = await this._pool.query(queryAlbum);
+    const { rowCount, rows } = await this._pool.query(queryAlbum);
 
-    if (!resultAlbum.rowCount) {
+    if (!rowCount) {
       throw new NotFoundError('Album tidak ditemukan');
     }
 
     const resultSongsByAlbumId = await this._songsService.getSongsByAlbumId(albumId);
 
-    return { ...resultAlbum.rows[0], songs: resultSongsByAlbumId };
+    return { ...rows[0], songs: resultSongsByAlbumId };
   }
 
   async editAlbumById(albumId, { name, year }) {

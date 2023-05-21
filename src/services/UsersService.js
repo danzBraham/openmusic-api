@@ -37,13 +37,13 @@ class UsersService {
       text: 'SELECT id, password FROM users WHERE username = $1',
       values: [username],
     };
-    const result = await this._pool.query(query);
+    const { rowCount, rows } = await this._pool.query(query);
 
-    if (!result.rowCount) {
+    if (!rowCount) {
       throw new AuthenticationError('Kredensial yang Anda berikan salah');
     }
 
-    const { id, password: hashedPassword } = result.rows[0];
+    const { id, password: hashedPassword } = rows[0];
     const match = await bcrypt.compare(password, hashedPassword);
 
     if (!match) {
@@ -62,13 +62,13 @@ class UsersService {
       text: 'INSERT INTO users VALUES($1, $2, $3, $4) RETURNING id',
       values: [id, username, hashedPassword, fullname],
     };
-    const result = await this._pool.query(query);
+    const { rowCount, rows } = await this._pool.query(query);
 
-    if (!result.rowCount) {
+    if (!rowCount) {
       throw new InvariantError('User gagal ditambahkan');
     }
 
-    return result.rows[0].id;
+    return rows[0].id;
   }
 
   async getUserById(userId) {
@@ -76,13 +76,13 @@ class UsersService {
       text: 'SELECT id, username, fullname FROM users WHERE id = $1',
       values: [userId],
     };
-    const result = await this._pool.query(query);
+    const { rowCount, rows } = await this._pool.query(query);
 
-    if (!result.rowCount) {
+    if (!rowCount) {
       throw new NotFoundError('User tidak ditemukan');
     }
 
-    return result.rows[0];
+    return rows[0];
   }
 }
 
