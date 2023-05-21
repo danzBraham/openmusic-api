@@ -8,11 +8,11 @@ class AlbumsService {
     this._songsService = songsService;
   }
 
-  async addAlbum({ name, year }) {
+  async addAlbum({ name, year, coverUrl = null }) {
     const albumId = `album-${nanoid(16)}`;
     const query = {
-      text: 'INSERT INTO albums VALUES($1, $2, $3) RETURNING id',
-      values: [albumId, name, year],
+      text: 'INSERT INTO albums VALUES($1, $2, $3, $4) RETURNING id',
+      values: [albumId, name, year, coverUrl],
     };
     const { rowCount, rows } = await this._pool.query(query);
 
@@ -36,13 +36,32 @@ class AlbumsService {
 
     const resultSongsByAlbumId = await this._songsService.getSongsByAlbumId(albumId);
 
-    return { ...rows[0], songs: resultSongsByAlbumId };
+    const album = {
+      id: rows[0].id,
+      name: rows[0].name,
+      year: rows[0].year,
+      coverUrl: rows[0].cover_url,
+    };
+
+    return { ...album, songs: resultSongsByAlbumId };
   }
 
   async editAlbumById(albumId, { name, year }) {
     const query = {
       text: 'UPDATE albums SET name = $1, year = $2 WHERE id = $3 RETURNING id',
       values: [name, year, albumId],
+    };
+    const { rowCount } = await this._pool.query(query);
+
+    if (!rowCount) {
+      throw new NotFoundError('Gagal memperbarui album, ID album tidak ditemukan');
+    }
+  }
+
+  async editCoverUrlAlbumById(albumId, coverUrl) {
+    const query = {
+      text: 'UPDATE albums SET cover_url = $1 WHERE id = $2 RETURNING id',
+      values: [coverUrl, albumId],
     };
     const { rowCount } = await this._pool.query(query);
 
