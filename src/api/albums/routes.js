@@ -30,7 +30,7 @@ const routes = (handler) => [
   {
     method: 'GET',
     path: '/albums/{id}/likes',
-    handler: (request) => handler.getUsersWhoLikedAlbumHandler(request),
+    handler: (request, h) => handler.getUsersWhoLikedAlbumHandler(request, h),
   },
   {
     method: 'DELETE',

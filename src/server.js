@@ -4,6 +4,7 @@ const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
 const Inert = require('@hapi/inert');
 const path = require('path');
+const config = require('./utils/config');
 const { ClientError } = require('./exceptions');
 
 const users = require('./api/users');
@@ -39,18 +40,21 @@ const uploads = require('./api/uploads');
 const StorageService = require('./services/StorageService');
 const UploadsValidator = require('./validator/uploads');
 
+const CacheService = require('./services/CacheService');
+
 const init = async () => {
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
   const songsService = new SongsService();
-  const albumsService = new AlbumsService(songsService);
+  const cacheService = new CacheService();
+  const albumsService = new AlbumsService(songsService, cacheService);
   const collaborationsService = new CollaborationsService();
   const playlistsService = new PlaylistsService(collaborationsService);
   const storageService = new StorageService(path.resolve(__dirname, 'api/uploads/file/images'));
 
   const server = Hapi.server({
-    port: process.env.PORT,
-    host: process.env.HOST,
+    host: config.app.host,
+    port: config.app.port,
     routes: {
       cors: {
         origin: ['*'],

@@ -3,9 +3,10 @@ const { nanoid } = require('nanoid');
 const { InvariantError, NotFoundError } = require('../exceptions');
 
 class AlbumsService {
-  constructor(songsService) {
+  constructor(songsService, cacheService) {
     this._pool = new Pool();
     this._songsService = songsService;
+    this._cacheService = cacheService;
   }
 
   async addAlbum({ name, year, coverUrl = null }) {
@@ -113,6 +114,7 @@ class AlbumsService {
       values: [id, userId, albumId],
     };
     const { rowCount } = await this._pool.query(query);
+    await this._cacheService.delete(`albums:${albumId}`);
 
     if (!rowCount) {
       throw new InvariantError('User gagal menyukai album');
@@ -120,13 +122,22 @@ class AlbumsService {
   }
 
   async getUsersWhoLikedAlbum(albumId) {
-    const query = {
-      text: 'SELECT COUNT(*) FROM user_album_likes WHERE album_id = $1',
-      values: [albumId],
-    };
-    const { rows } = await this._pool.query(query);
+    try {
+      const result = await this._cacheService.get(`albums:${albumId}`);
+      return {
+        likes: parseInt(result, 10),
+        cache: true,
+      };
+    } catch (error) {
+      const query = {
+        text: 'SELECT COUNT(*) FROM user_album_likes WHERE album_id = $1',
+        values: [albumId],
+      };
+      const { rows } = await this._pool.query(query);
+      await this._cacheService.set(`albums:${albumId}`, rows[0].count);
 
-    return parseInt(rows[0].count, 10);
+      return { likes: parseInt(rows[0].count, 10) };
+    }
   }
 
   async deleteUsersWhoLikedAlbum(userId, albumId) {
@@ -135,6 +146,7 @@ class AlbumsService {
       values: [userId, albumId],
     };
     const { rowCount } = await this._pool.query(query);
+    await this._cacheService.delete(`albums:${albumId}`);
 
     if (!rowCount) {
       throw new InvariantError('User gagal batal menyukai album');
